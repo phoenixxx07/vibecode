@@ -16,5 +16,7 @@ export function emitUnreadMessage(event: UnreadMessageEvent) {
 
 export function subscribeUnreadMessages(listener: Listener) {
   listeners.add(listener);
-  return () => listeners.delete(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 }
