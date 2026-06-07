@@ -14,64 +14,48 @@ function toAdapterUser(user: User): AdapterUser {
 }
 
 function toPrismaUserCreateData(
-  data: Record<string, unknown>
+  data: Omit<AdapterUser, "id">
 ): Prisma.UserUncheckedCreateInput {
   const email = data.email;
-  if (typeof email !== "string" || !email.trim()) {
+  if (!email?.trim()) {
     throw new Error("OAuth profile missing email");
   }
 
   return {
     email: email.trim().toLowerCase(),
-    ...(typeof data.name === "string" || data.name === null
-      ? { name: data.name }
-      : {}),
-    ...(data.image !== undefined ? { avatarUrl: data.image as string | null } : {}),
+    ...(data.name !== undefined ? { name: data.name } : {}),
+    ...(data.image !== undefined ? { avatarUrl: data.image } : {}),
   };
 }
 
 function toPrismaUserUpdateData(
-  data: Record<string, unknown>
+  data: Partial<AdapterUser>
 ): Prisma.UserUncheckedUpdateInput {
   return {
-    ...(typeof data.name === "string" || data.name === null
-      ? { name: data.name }
+    ...(data.name !== undefined ? { name: data.name } : {}),
+    ...(typeof data.email === "string"
+      ? { email: data.email.trim().toLowerCase() }
       : {}),
-    ...(typeof data.email === "string" ? { email: data.email.trim().toLowerCase() } : {}),
-    ...(data.image !== undefined ? { avatarUrl: data.image as string | null } : {}),
+    ...(data.image !== undefined ? { avatarUrl: data.image } : {}),
   };
 }
 
 function toPrismaAccountData(
-  data: Record<string, unknown>
+  data: AdapterAccount
 ): Prisma.AccountUncheckedCreateInput {
-  const userId = data.userId;
-  const type = data.type;
-  const provider = data.provider;
-  const providerAccountId = data.providerAccountId;
-
-  if (
-    typeof userId !== "string" ||
-    typeof type !== "string" ||
-    typeof provider !== "string" ||
-    typeof providerAccountId !== "string"
-  ) {
-    throw new Error("Invalid OAuth account payload");
-  }
-
   return {
-    userId,
-    type,
-    provider,
-    providerAccountId,
-    refresh_token: (data.refresh_token as string | null | undefined) ?? null,
-    access_token: (data.access_token as string | null | undefined) ?? null,
+    userId: data.userId,
+    type: data.type,
+    provider: data.provider,
+    providerAccountId: data.providerAccountId,
+    refresh_token: data.refresh_token ?? null,
+    access_token: data.access_token ?? null,
     expires_at:
       typeof data.expires_at === "number" ? Math.trunc(data.expires_at) : null,
-    token_type: (data.token_type as string | null | undefined) ?? null,
-    scope: (data.scope as string | null | undefined) ?? null,
-    id_token: (data.id_token as string | null | undefined) ?? null,
-    session_state: (data.session_state as string | null | undefined) ?? null,
+    token_type: data.token_type ?? null,
+    scope: data.scope ?? null,
+    id_token: data.id_token ?? null,
+    session_state: data.session_state ?? null,
   };
 }
 
