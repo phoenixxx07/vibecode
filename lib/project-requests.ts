@@ -81,8 +81,12 @@ export type PendingProjectRequest = Prisma.ProjectRequestGetPayload<{
   include: typeof pendingProjectRequestInclude;
 }>;
 
-export type SerializedPendingProjectRequest = Omit<PendingProjectRequest, "budgetAmount"> & {
+export type SerializedPendingProjectRequest = Omit<
+  PendingProjectRequest,
+  "budgetAmount" | "agreedBudgetAmount"
+> & {
   budgetAmount: number;
+  agreedBudgetAmount: number | null;
 };
 
 export async function getPendingProjectRequests(): Promise<SerializedPendingProjectRequest[]> {
