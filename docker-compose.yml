@@ -12,6 +12,12 @@ name: vibecode
 # Rebuild paksa tanpa cache (jarang):
 #   docker compose build --no-cache && docker compose up -d
 #
+# Screenshot upload manual disimpan di volume `vibecode_uploads` (mount ke
+# /app/public/uploads). JANGAN pakai `docker compose down -v` kecuali sengaja
+# hapus data — volume itu yang menyimpan file screenshot.
+# Backup: docker run --rm -v vibecode_uploads:/data -v $(pwd):/backup alpine \
+#   tar czf /backup/vibecode-uploads-$(date +%F).tgz -C /data .
+#
 # Local DB only (npm run dev on host):
 #   docker compose -f docker-compose.yml -f docker-compose.local.yml up postgres -d
 
@@ -74,6 +80,7 @@ services:
       THUMIO_API_KEY: ${THUMIO_API_KEY:-}
       AUTH_DEBUG: ${AUTH_DEBUG:-false}
     volumes:
+      # Persist manual screenshot uploads across container rebuilds.
       - vibecode_uploads:/app/public/uploads
     labels:
       - traefik.enable=true
@@ -95,6 +102,14 @@ services:
       - traefik.http.routers.vibecode-auth.middlewares=security-headers@file,gzip-compress@file
       - traefik.http.routers.vibecode-auth.service=vibecode-web
       - traefik.http.routers.vibecode-auth.priority=10
+      # --- Media router (/uploads/**, screenshot upload API) — no buffering-limit ---
+      # buffering-limit can interfere with multipart POST and large image responses.
+      - traefik.http.routers.vibecode-media.rule=Host(`${APP_DOMAIN:-vibecode.agungdigitalid.com}`) && (PathPrefix(`/uploads`) || PathRegexp(`^/api/products/[^/]+/screenshot$`))
+      - traefik.http.routers.vibecode-media.entrypoints=websecure
+      - traefik.http.routers.vibecode-media.tls.certresolver=letsencrypt
+      - traefik.http.routers.vibecode-media.middlewares=security-headers@file,gzip-compress@file
+      - traefik.http.routers.vibecode-media.service=vibecode-web
+      - traefik.http.routers.vibecode-media.priority=10
       # --- HTTP → HTTPS redirect ---
       - traefik.http.routers.vibecode-web-http.rule=Host(`${APP_DOMAIN:-vibecode.agungdigitalid.com}`)
       - traefik.http.routers.vibecode-web-http.entrypoints=web
@@ -111,4 +126,6 @@ networks:
 
 volumes:
   vibecode_pgdata:
+    name: vibecode_pgdata
   vibecode_uploads:
+    name: vibecode_uploads

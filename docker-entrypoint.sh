@@ -6,6 +6,8 @@ UPLOAD_DIR="/app/public/uploads/screenshots"
 echo "Ensuring upload directory exists..."
 mkdir -p "$UPLOAD_DIR"
 chown -R nextjs:nodejs /app/public/uploads
+file_count="$(ls -1 "$UPLOAD_DIR" 2>/dev/null | wc -l | tr -d ' ')"
+echo "Upload directory ready: $UPLOAD_DIR ($file_count files)"
 
 if [ -z "${POSTGRES_PASSWORD:-}" ]; then
   echo "ERROR: POSTGRES_PASSWORD is required in .env" >&2
