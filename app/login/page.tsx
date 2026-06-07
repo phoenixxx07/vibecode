@@ -39,7 +39,7 @@ export default async function LoginPage({
 
         {params.error && (
           <p className="mb-4 border border-red-500 p-3 text-xs text-red-400">
-            Authentication failed. Please try again.
+            Authentication failed ({params.error}). Please try again.
           </p>
         )}
 

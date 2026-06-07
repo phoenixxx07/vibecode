@@ -72,6 +72,7 @@ services:
       SEED_DEMO_DATA: ${SEED_DEMO_DATA:-false}
       RUN_DB_SEED: ${RUN_DB_SEED:-false}
       THUMIO_API_KEY: ${THUMIO_API_KEY:-}
+      AUTH_DEBUG: ${AUTH_DEBUG:-false}
     volumes:
       - vibecode_uploads:/app/public/uploads
     labels:

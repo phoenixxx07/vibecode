@@ -4,6 +4,7 @@ import type { UserRole } from "@prisma/client";
 export const authConfig = {
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   session: {
     strategy: "jwt",
@@ -20,9 +21,9 @@ export const authConfig = {
       return token;
     },
     session({ session, token }) {
-      if (session.user && token.id && token.role) {
+      if (session.user && token.id) {
         session.user.id = token.id as string;
-        session.user.role = token.role as UserRole;
+        session.user.role = (token.role as UserRole | undefined) ?? "user";
         if (token.name) session.user.name = token.name as string;
         if (token.email) session.user.email = token.email as string;
         if (token.picture) session.user.image = token.picture as string;

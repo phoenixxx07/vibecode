@@ -41,26 +41,22 @@ async function syncTokenFromDb(token: Record<string, unknown>, userId: string) {
 
 
   if (dbUser) {
-
     token.id = dbUser.id;
-
     token.role = dbUser.role;
-
     token.name = dbUser.name;
-
     token.email = dbUser.email;
-
     token.picture = dbUser.avatarUrl;
-
+  } else {
+    token.role = UserRole.user;
   }
-
 }
 
 
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-
+  debug: process.env.AUTH_DEBUG === "true",
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   adapter: PrismaAuthAdapter(),
 
   providers: [
