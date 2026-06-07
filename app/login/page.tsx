@@ -1,8 +1,9 @@
-import { auth, resolvePostLoginRedirect, signIn } from "@/lib/auth";
+import { auth, resolvePostLoginRedirect } from "@/lib/auth";
+import { buildAuthCallbackUrl } from "@/lib/auth-redirect";
 import { AppLogo } from "@/components/brand/AppLogo";
+import { GoogleSignInForm } from "@/components/auth/GoogleSignInForm";
 import { TerminalButton } from "@/components/terminal/TerminalButton";
 import { ThemeToggle } from "@/components/terminal/ThemeToggle";
-import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 
 type SearchParams = Promise<{ callbackUrl?: string; error?: string }>;
@@ -19,21 +20,7 @@ export default async function LoginPage({
     redirect(resolvePostLoginRedirect(session.user.role, params.callbackUrl));
   }
 
-  async function handleGoogleLogin(formData: FormData) {
-    "use server";
-    const callbackUrl = (formData.get("callbackUrl") as string) || "/dashboard";
-    const redirectTo = callbackUrl === "/dashboard"
-      ? "/auth/complete"
-      : `/auth/complete?callbackUrl=${encodeURIComponent(callbackUrl)}`;
-    try {
-      await signIn("google", { redirectTo });
-    } catch (error) {
-      if (error instanceof AuthError) {
-        redirect(`/login?error=auth`);
-      }
-      throw error;
-    }
-  }
+  const authCallbackUrl = buildAuthCallbackUrl(params.callbackUrl);
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-page p-4">
@@ -59,15 +46,14 @@ export default async function LoginPage({
           </p>
         )}
 
-        <form action={handleGoogleLogin}>
-          <input type="hidden" name="callbackUrl" value={params.callbackUrl ?? "/dashboard"} />
+        <GoogleSignInForm callbackUrl={authCallbackUrl}>
           <button
             type="submit"
             className="flex h-12 w-full items-center justify-center border border-primary bg-primary text-sm font-bold uppercase text-background-dark hover:bg-background-dark hover:text-primary"
           >
             [AUTH_GOOGLE]
           </button>
-        </form>
+        </GoogleSignInForm>
 
         <div className="mt-6 text-center">
           <TerminalButton href="/" variant="ghost" className="text-xs">

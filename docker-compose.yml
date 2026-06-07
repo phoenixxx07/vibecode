@@ -59,10 +59,10 @@ services:
       HOSTNAME: 0.0.0.0
       POSTGRES_HOST: postgres
       POSTGRES_PORT: "5432"
-      # DATABASE_URL dibentuk di docker-entrypoint.sh (password di-encode)
+      AUTH_URL: https://${APP_DOMAIN:-vibecode.agungdigitalid.com}
       NEXTAUTH_URL: https://${APP_DOMAIN:-vibecode.agungdigitalid.com}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?Set NEXTAUTH_SECRET in .env}
-      AUTH_SECRET: ${AUTH_SECRET:-${NEXTAUTH_SECRET}}
+      AUTH_SECRET: ${NEXTAUTH_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?Set GOOGLE_CLIENT_ID in .env}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?Set GOOGLE_CLIENT_SECRET in .env}
       NEXT_PUBLIC_SITE_URL: https://${APP_DOMAIN:-vibecode.agungdigitalid.com}
