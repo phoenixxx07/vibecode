@@ -1,3 +1,5 @@
+import { NextRequest } from "next/server";
+
 import { handlers } from "@/lib/auth";
 
 const { GET: authGet, POST: authPost } = handlers;
@@ -12,7 +14,7 @@ function logAuthError(method: string, error: unknown) {
   });
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     return await authGet(request);
   } catch (error) {
@@ -21,7 +23,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     return await authPost(request);
   } catch (error) {
