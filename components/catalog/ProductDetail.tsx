@@ -7,12 +7,13 @@ import {
   getPrimaryCta,
   getProjectTypeLabel,
 } from "@/lib/products";
-import { normalizeScreenshotUrl } from "@/lib/thumio";
+import { normalizeScreenshotUrl, shouldUnoptimizeScreenshot } from "@/lib/thumio";
 import { ProductWithRelations } from "@/types/product";
 import { TerminalButton } from "../terminal/TerminalButton";
 
 export function ProductDetail({ product }: { product: ProductWithRelations }) {
   const cta = getPrimaryCta(product.projectType);
+  const screenshotSrc = normalizeScreenshotUrl(product.screenshotUrl);
   const visitUrl =
     product.projectType === "repository"
       ? product.githubUrl || product.url
@@ -34,11 +35,12 @@ export function ProductDetail({ product }: { product: ProductWithRelations }) {
     <div className="grid gap-8 lg:grid-cols-2">
       <div className="relative aspect-video border border-muted bg-page">
         <Image
-          src={normalizeScreenshotUrl(product.screenshotUrl)}
+          src={screenshotSrc}
           alt={product.name}
           fill
           className="object-cover"
           priority
+          unoptimized={shouldUnoptimizeScreenshot(screenshotSrc)}
         />
       </div>
 

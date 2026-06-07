@@ -1,21 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatPricing, getProjectTypeLabel } from "@/lib/products";
-import { normalizeScreenshotUrl } from "@/lib/thumio";
+import { normalizeScreenshotUrl, shouldUnoptimizeScreenshot } from "@/lib/thumio";
 import { ProductWithRelations } from "@/types/product";
 
 export function ProductCard({ product }: { product: ProductWithRelations }) {
   const category = product.categories[0]?.category;
+  const screenshotSrc = normalizeScreenshotUrl(product.screenshotUrl);
 
   return (
     <article className="crt-glow flex flex-col border border-muted bg-surface transition-colors">
       <div className="relative aspect-video w-full border-b border-muted bg-page">
         <Image
-          src={normalizeScreenshotUrl(product.screenshotUrl)}
+          src={screenshotSrc}
           alt={product.name}
           fill
           className="object-cover"
           sizes="(max-width: 768px) 100vw, 33vw"
+          unoptimized={shouldUnoptimizeScreenshot(screenshotSrc)}
         />
         <div className="absolute left-2 top-2 border border-primary bg-page/90 px-2 py-0.5 text-xs font-bold uppercase text-primary">
           {getProjectTypeLabel(product.projectType)}

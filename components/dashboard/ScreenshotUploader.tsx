@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { TerminalButton } from "../terminal/TerminalButton";
 import { useConfirmDialog } from "../terminal/TerminalConfirmDialog";
 import { isManualScreenshot } from "@/lib/screenshot";
-import { normalizeScreenshotUrl } from "@/lib/thumio";
+import { normalizeScreenshotUrl, shouldUnoptimizeScreenshot } from "@/lib/thumio";
 
 export function ScreenshotUploader({
   productId,
@@ -113,7 +113,7 @@ export function ScreenshotUploader({
           alt={`Preview ${productName}`}
           fill
           className="object-cover"
-          unoptimized={!!preview || isManual}
+          unoptimized={!!preview || isManual || shouldUnoptimizeScreenshot(displayUrl)}
         />
       </div>
 

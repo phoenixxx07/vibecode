@@ -7,7 +7,7 @@ import { TerminalButton } from "../terminal/TerminalButton";
 import { useConfirmDialog } from "../terminal/TerminalConfirmDialog";
 import { ProductWithRelations } from "@/types/product";
 import { getProjectTypeLabel } from "@/lib/products";
-import { normalizeScreenshotUrl } from "@/lib/thumio";
+import { normalizeScreenshotUrl, shouldUnoptimizeScreenshot } from "@/lib/thumio";
 
 export function AdminReviewPanel({ products }: { products: ProductWithRelations[] }) {
   const router = useRouter();
@@ -71,15 +71,19 @@ export function AdminReviewPanel({ products }: { products: ProductWithRelations[
 
   return (
     <div className="space-y-6">
-      {products.map((product) => (
+      {products.map((product) => {
+        const screenshotSrc = normalizeScreenshotUrl(product.screenshotUrl);
+
+        return (
         <div key={product.id} className="border border-muted bg-surface p-6">
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="relative aspect-video border border-muted bg-page lg:col-span-1">
               <Image
-                src={normalizeScreenshotUrl(product.screenshotUrl)}
+                src={screenshotSrc}
                 alt={product.name}
                 fill
                 className="object-cover"
+                unoptimized={shouldUnoptimizeScreenshot(screenshotSrc)}
               />
             </div>
             <div className="lg:col-span-2">
@@ -135,7 +139,8 @@ export function AdminReviewPanel({ products }: { products: ProductWithRelations[
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
       {dialogNode}
     </div>
   );

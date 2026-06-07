@@ -1,5 +1,13 @@
 const THUMIO_WIDTH = 1200;
 
+export const PLACEHOLDER_SCREENSHOT = "/placeholder-project.svg";
+
+/** SVG placeholders and manual uploads should bypass the image optimizer. */
+export function shouldUnoptimizeScreenshot(url: string): boolean {
+  const path = url.split("?")[0];
+  return path.endsWith(".svg") || path.startsWith("/uploads/");
+}
+
 function buildThumioUrl(targetUrl: string, apiKey?: string): string {
   const encoded = encodeURIComponent(targetUrl);
 
@@ -17,7 +25,7 @@ export function getScreenshotUrl(url: string): string {
 
 /** Fixes legacy thum.io URLs that percent-encoded the target in the path. */
 export function normalizeScreenshotUrl(url: string | null | undefined): string {
-  if (!url) return "/placeholder-project.svg";
+  if (!url) return PLACEHOLDER_SCREENSHOT;
   if (!url.includes("image.thum.io")) {
     // Manual uploads: strip ?v= cache-bust for stable next/image src
     return url.startsWith("/uploads/") ? url.split("?")[0] : url;
@@ -28,7 +36,7 @@ export function normalizeScreenshotUrl(url: string | null | undefined): string {
     try {
       return getScreenshotUrl(decodeURIComponent(encodedTarget));
     } catch {
-      return "/placeholder-project.svg";
+      return PLACEHOLDER_SCREENSHOT;
     }
   }
 
@@ -46,7 +54,7 @@ export function getRepositoryPreviewUrl(githubUrl: string): string {
   } catch {
     // fall through
   }
-  return "/placeholder-project.svg";
+  return PLACEHOLDER_SCREENSHOT;
 }
 
 export function getProjectScreenshot(
@@ -63,7 +71,7 @@ export function getProjectScreenshot(
 /** Absolute URL for Open Graph / social previews. */
 export function absoluteScreenshotUrl(url: string | null | undefined): string | undefined {
   const normalized = normalizeScreenshotUrl(url);
-  if (!normalized || normalized === "/placeholder-project.svg") return undefined;
+  if (!normalized || normalized === PLACEHOLDER_SCREENSHOT) return undefined;
   if (normalized.startsWith("http://") || normalized.startsWith("https://")) {
     return normalized;
   }

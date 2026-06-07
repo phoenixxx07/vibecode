@@ -6,7 +6,7 @@ import { useState } from "react";
 import { TerminalButton } from "../terminal/TerminalButton";
 import { useConfirmDialog } from "../terminal/TerminalConfirmDialog";
 import { getProjectTypeLabel } from "@/lib/products";
-import { normalizeScreenshotUrl } from "@/lib/thumio";
+import { normalizeScreenshotUrl, shouldUnoptimizeScreenshot } from "@/lib/thumio";
 import { ProductWithRelations } from "@/types/product";
 
 export function AdminCatalogPanel({
@@ -90,16 +90,18 @@ export function AdminCatalogPanel({
       {products.map((product) => {
         const categorySlug = product.categories[0]?.category.slug ?? "all";
         const categoryName = product.categories[0]?.category.name;
+        const screenshotSrc = normalizeScreenshotUrl(product.screenshotUrl);
 
         return (
           <div key={product.id} className="border border-muted bg-surface p-4">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
               <div className="relative h-20 w-32 shrink-0 border border-muted bg-page">
                 <Image
-                  src={normalizeScreenshotUrl(product.screenshotUrl)}
+                  src={screenshotSrc}
                   alt={product.name}
                   fill
                   className="object-cover"
+                  unoptimized={shouldUnoptimizeScreenshot(screenshotSrc)}
                 />
               </div>
 
