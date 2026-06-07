@@ -1,8 +1,6 @@
 export const MANUAL_SCREENSHOT_PREFIX = "/uploads/screenshots/";
 
-export const ALLOWED_IMAGE_TYPES: Record<string, "jpg" | "png" | "webp"> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
+export const ALLOWED_IMAGE_TYPES: Record<string, "webp"> = {
   "image/webp": "webp",
 };
 
@@ -14,7 +12,7 @@ export function isManualScreenshot(url: string | null | undefined): boolean {
 
 export function validateScreenshotFile(file: File): string | null {
   if (!ALLOWED_IMAGE_TYPES[file.type]) {
-    return "Format tidak didukung. Gunakan JPG, PNG, atau WebP.";
+    return "Format tidak didukung. Gunakan WebP saja agar file lebih ringan.";
   }
   if (file.size > MAX_SCREENSHOT_BYTES) {
     return "Ukuran file maksimal 5 MB.";

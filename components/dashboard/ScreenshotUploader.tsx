@@ -129,7 +129,7 @@ export function ScreenshotUploader({
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/webp"
           className="hidden"
           onChange={onFileChange}
           disabled={loading}
@@ -154,7 +154,7 @@ export function ScreenshotUploader({
         )}
       </div>
 
-      <p className="mt-2 text-xs text-muted">JPG, PNG, atau WebP · maks. 5 MB · rasio 16:9 disarankan</p>
+      <p className="mt-2 text-xs text-muted">WebP wajib · maks. 5 MB · rasio 16:9 disarankan</p>
       {dialogNode}
     </fieldset>
   );
