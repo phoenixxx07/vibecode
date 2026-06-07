@@ -3,10 +3,14 @@ name: vibecode
 # Production stack for srv1029954 — no host port bindings (Traefik handles 80/443).
 # Avoids conflicts with: 3000 (soalify), 5432/6379/8080, 18081-18096.
 #
-# Deploy:
-#   cp .env.production.example .env
-#   # fill secrets, then:
+# Deploy (pakai cache Docker — default, jangan --no-cache kecuali perlu):
 #   docker compose up -d --build
+#
+# Tanpa rebuild (hanya .env / restart):
+#   docker compose up -d
+#
+# Rebuild paksa tanpa cache (jarang):
+#   docker compose build --no-cache && docker compose up -d
 #
 # Local DB only (npm run dev on host):
 #   docker compose -f docker-compose.yml -f docker-compose.local.yml up postgres -d

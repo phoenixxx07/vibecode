@@ -8,7 +8,8 @@ RUN apk add --no-cache libc6-compat tzdata su-exec \
 FROM base AS deps
 COPY package.json package-lock.json ./
 # postinstall runs prisma generate — schema not copied yet
-RUN npm ci --ignore-scripts
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --ignore-scripts
 
 FROM base AS builder
 ARG NEXT_PUBLIC_SITE_URL=https://vibecode.agungdigitalid.com
@@ -16,13 +17,23 @@ ARG NEXT_PUBLIC_SITE_NAME=VibeCatalog.id
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_NAME=$NEXT_PUBLIC_SITE_NAME
 ENV NEXT_TELEMETRY_DISABLED=1
-# Prisma generate only needs a valid URL shape, not a live database.
 ENV DATABASE_URL=postgresql://postgres:postgres@postgres:5432/vibecatalog?schema=public
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
 RUN npx prisma generate
-RUN npm run build
+
+COPY next.config.ts tsconfig.json postcss.config.mjs eslint.config.mjs ./
+COPY instrumentation.ts middleware.ts server.ts ./
+COPY public ./public
+COPY app ./app
+COPY components ./components
+COPY lib ./lib
+COPY hooks ./hooks
+COPY types ./types
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
 
 FROM base AS runner
 ENV NODE_ENV=production
