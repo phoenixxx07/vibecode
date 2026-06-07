@@ -1,4 +1,4 @@
-import { mkdir, unlink, writeFile } from "fs/promises";
+import { mkdir, readFile, unlink, writeFile } from "fs/promises";
 import path from "path";
 import {
   ALLOWED_IMAGE_TYPES,
@@ -7,6 +7,44 @@ import {
 } from "@/lib/screenshot";
 
 export { isManualScreenshot, MANUAL_SCREENSHOT_PREFIX };
+
+const SCREENSHOT_CONTENT_TYPES: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+
+const SCREENSHOT_FILENAME_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|jpeg|png|webp)$/i;
+
+export function isValidScreenshotFilename(filename: string): boolean {
+  return filename === path.basename(filename) && SCREENSHOT_FILENAME_PATTERN.test(filename);
+}
+
+export function getScreenshotContentType(filename: string): string | null {
+  const ext = path.extname(filename).slice(1).toLowerCase();
+  return SCREENSHOT_CONTENT_TYPES[ext] ?? null;
+}
+
+export async function readProductScreenshot(
+  filename: string
+): Promise<{ buffer: Buffer; contentType: string } | null> {
+  if (!isValidScreenshotFilename(filename)) return null;
+
+  const contentType = getScreenshotContentType(filename);
+  if (!contentType) return null;
+
+  const filepath = path.join(SCREENSHOT_UPLOAD_DIR, filename);
+  if (!filepath.startsWith(SCREENSHOT_UPLOAD_DIR)) return null;
+
+  try {
+    const buffer = await readFile(filepath);
+    return { buffer, contentType };
+  } catch {
+    return null;
+  }
+}
 
 export const SCREENSHOT_UPLOAD_DIR = path.join(
   process.cwd(),
