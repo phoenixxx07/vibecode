@@ -55,7 +55,8 @@ function toPrismaAccountData(
     token_type: data.token_type ?? null,
     scope: data.scope ?? null,
     id_token: data.id_token ?? null,
-    session_state: data.session_state ?? null,
+    session_state:
+      typeof data.session_state === "string" ? data.session_state : null,
   };
 }
 
