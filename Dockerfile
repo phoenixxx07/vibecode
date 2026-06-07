@@ -7,7 +7,8 @@ RUN apk add --no-cache libc6-compat tzdata su-exec \
 
 FROM base AS deps
 COPY package.json package-lock.json ./
-RUN npm ci
+# postinstall runs prisma generate — schema not copied yet
+RUN npm ci --ignore-scripts
 
 FROM base AS builder
 ARG NEXT_PUBLIC_SITE_URL=https://vibecode.agungdigitalid.com
