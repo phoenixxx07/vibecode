@@ -9,7 +9,13 @@ export default async function AuthCompletePage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  const session = await auth();
+
+  let session;
+  try {
+    session = await auth();
+  } catch {
+    redirect("/login");
+  }
 
   if (!session?.user?.id) {
     redirect("/login");
