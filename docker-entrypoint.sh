@@ -29,8 +29,10 @@ echo "Running database migrations..."
 su-exec nextjs npx prisma migrate deploy
 
 if [ "${RUN_DB_SEED:-false}" = "true" ]; then
-  echo "Seeding database..."
+  echo "Seeding database (RUN_DB_SEED=true)..."
   su-exec nextjs npx prisma db seed
+else
+  echo "Skipping database seed (set RUN_DB_SEED=true for first deploy only)."
 fi
 
 echo "Starting VibeCatalog server..."

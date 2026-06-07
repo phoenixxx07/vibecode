@@ -12,11 +12,16 @@ name: vibecode
 # Rebuild paksa tanpa cache (jarang):
 #   docker compose build --no-cache && docker compose up -d
 #
-# Screenshot upload manual disimpan di volume `vibecode_uploads` (mount ke
-# /app/public/uploads). JANGAN pakai `docker compose down -v` kecuali sengaja
-# hapus data — volume itu yang menyimpan file screenshot.
-# Backup: docker run --rm -v vibecode_uploads:/data -v $(pwd):/backup alpine \
-#   tar czf /backup/vibecode-uploads-$(date +%F).tgz -C /data .
+# Screenshot upload manual disimpan di volume Docker Compose (lihat `docker volume ls`).
+# JANGAN pakai `docker compose down -v` kecuali sengaja hapus data.
+# Backup (ganti NAMA_VOLUME dari output `docker volume ls | grep vibecode`):
+#   docker run --rm -v NAMA_VOLUME:/data -v $(pwd):/backup alpine \
+#     tar czf /backup/vibecode-backup-$(date +%F).tgz -C /data .
+#
+# Jika data DB "hilang" setelah deploy: kemungkinan volume Postgres salah mount.
+# Cek: docker volume ls | grep vibecode
+# Data lama biasanya di volume lama (mis. vibecode_vibecode_pgdata). Jangan buat
+# volume `name:` custom tanpa migrasi — biarkan Compose yang menamai volume.
 #
 # Local DB only (npm run dev on host):
 #   docker compose -f docker-compose.yml -f docker-compose.local.yml up postgres -d
@@ -126,6 +131,4 @@ networks:
 
 volumes:
   vibecode_pgdata:
-    name: vibecode_pgdata
   vibecode_uploads:
-    name: vibecode_uploads
