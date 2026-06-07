@@ -37,7 +37,17 @@ app.prepare().then(() => {
       return;
     }
 
-    handle(req, res, parsedUrl);
+    void handle(req, res, parsedUrl).catch((err: unknown) => {
+      console.error("[server] request handler failed", {
+        method: req.method,
+        url: req.url,
+        err,
+      });
+      if (!res.headersSent) {
+        res.statusCode = 500;
+        res.end("Internal Server Error");
+      }
+    });
   });
 
   const wss = new WebSocketServer({ noServer: true });

@@ -24,11 +24,17 @@ export const authConfig = {
       if (session.user && token.id) {
         session.user.id = token.id as string;
         session.user.role = (token.role as UserRole | undefined) ?? "user";
-        if (token.name) session.user.name = token.name as string;
-        if (token.email) session.user.email = token.email as string;
-        if (token.picture) session.user.image = token.picture as string;
       }
       return session;
+    },
+    redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      try {
+        if (new URL(url).origin === baseUrl) return url;
+      } catch {
+        return `${baseUrl}/auth/complete`;
+      }
+      return `${baseUrl}/auth/complete`;
     },
   },
   providers: [],

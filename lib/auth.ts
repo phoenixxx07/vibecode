@@ -29,26 +29,21 @@ const userSelect = {
 
 
 async function syncTokenFromDb(token: Record<string, unknown>, userId: string) {
-
   const dbUser = await prisma.user.findUnique({
-
     where: { id: userId },
-
-    select: userSelect,
-
+    select: { id: true, role: true },
   });
-
-
 
   if (dbUser) {
     token.id = dbUser.id;
     token.role = dbUser.role;
-    token.name = dbUser.name;
-    token.email = dbUser.email;
-    token.picture = dbUser.avatarUrl;
   } else {
     token.role = UserRole.user;
   }
+
+  delete token.name;
+  delete token.email;
+  delete token.picture;
 }
 
 
@@ -86,12 +81,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
 
+    async session({ session, token }) {
+      if (session.user && token.id) {
+        session.user.id = token.id;
+        session.user.role = token.role ?? UserRole.user;
+
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id },
+            select: userSelect,
+          });
+          if (dbUser) {
+            session.user.name = dbUser.name;
+            session.user.email = dbUser.email;
+            session.user.image = dbUser.avatarUrl;
+          }
+        } catch (error) {
+          console.error("[auth] session callback db lookup failed", {
+            userId: token.id,
+            error,
+          });
+        }
+      }
+      return session;
+    },
+
     async jwt({ token, user, trigger }) {
       if (user?.id) {
         token.id = user.id;
-        if (user.name) token.name = user.name;
-        if (user.email) token.email = user.email;
-        if (user.image) token.picture = user.image;
 
         try {
           if (
@@ -110,6 +127,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             error,
           });
           token.role = token.role ?? UserRole.user;
+          delete token.name;
+          delete token.email;
+          delete token.picture;
         }
       } else if (trigger === "update" && typeof token.id === "string") {
         try {
