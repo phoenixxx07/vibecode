@@ -53,6 +53,8 @@ async function syncTokenFromDb(token: Record<string, unknown>, userId: string) {
 
 
 
+const seedAdminEmail = process.env.SEED_ADMIN_EMAIL?.trim().toLowerCase();
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   debug: process.env.AUTH_DEBUG === "true",
@@ -67,52 +69,62 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
 
-  callbacks: {
+  events: {
+    async signIn({ user, account, isNewUser }) {
+      console.info("[auth] signIn ok", {
+        userId: user.id,
+        provider: account?.provider,
+        isNewUser,
+      });
+    },
+  },
 
+  callbacks: {
     ...authConfig.callbacks,
 
     async signIn() {
-
       return true;
-
     },
 
     async jwt({ token, user, trigger }) {
-
-      const seedAdminEmail = process.env.SEED_ADMIN_EMAIL;
-
-
-
       if (user?.id) {
+        token.id = user.id;
+        if (user.name) token.name = user.name;
+        if (user.email) token.email = user.email;
+        if (user.image) token.picture = user.image;
 
-        if (seedAdminEmail && user.email === seedAdminEmail) {
-
-          await prisma.user.update({
-
-            where: { id: user.id },
-
-            data: { role: UserRole.admin },
-
+        try {
+          if (
+            seedAdminEmail &&
+            user.email?.trim().toLowerCase() === seedAdminEmail
+          ) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { role: UserRole.admin },
+            });
+          }
+          await syncTokenFromDb(token, user.id);
+        } catch (error) {
+          console.error("[auth] jwt callback db sync failed", {
+            userId: user.id,
+            error,
           });
-
+          token.role = token.role ?? UserRole.user;
         }
-
-        await syncTokenFromDb(token, user.id);
-
       } else if (trigger === "update" && typeof token.id === "string") {
-
-        await syncTokenFromDb(token, token.id);
-
+        try {
+          await syncTokenFromDb(token, token.id);
+        } catch (error) {
+          console.error("[auth] jwt update sync failed", {
+            userId: token.id,
+            error,
+          });
+        }
       }
 
-
-
       return token;
-
     },
-
   },
-
 });
 
 
