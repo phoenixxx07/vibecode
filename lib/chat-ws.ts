@@ -2,7 +2,7 @@ import type { IncomingMessage } from "http";
 import type { Duplex } from "stream";
 import { parse } from "url";
 import { getToken } from "next-auth/jwt";
-import { WebSocket, WebSocketServer } from "ws";
+import { WebSocket, WebSocketServer, type RawData } from "ws";
 import type { ChatEvent } from "./chat-hub";
 import { canAccessRequestChat } from "./project-requests";
 
@@ -70,7 +70,7 @@ export function broadcastChatEvent(event: ChatEvent) {
   }
 }
 
-async function handleClientMessage(ws: WebSocket, state: ClientState, raw: Buffer) {
+async function handleClientMessage(ws: WebSocket, state: ClientState, raw: RawData) {
   try {
     const data = JSON.parse(raw.toString()) as { action?: string; requestId?: string };
 
@@ -97,7 +97,7 @@ export function setupChatWebSocket(wss: WebSocketServer) {
   wss.on("connection", (ws, req) => {
     // Clients send subscribe immediately on onopen. Auth is async, so buffer
     // messages until the handler is ready — otherwise subscribe is dropped.
-    const pendingMessages: Buffer[] = [];
+    const pendingMessages: RawData[] = [];
     let state: ClientState | null = null;
 
     ws.on("message", (raw) => {
