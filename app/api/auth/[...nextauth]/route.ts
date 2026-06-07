@@ -12,24 +12,18 @@ function logAuthError(method: string, error: unknown) {
   });
 }
 
-export async function GET(
-  request: Request,
-  context: { params: Promise<{ nextauth: string[] }> }
-) {
+export async function GET(request: Request) {
   try {
-    return await authGet(request, context);
+    return await authGet(request);
   } catch (error) {
     logAuthError("GET", error);
     throw error;
   }
 }
 
-export async function POST(
-  request: Request,
-  context: { params: Promise<{ nextauth: string[] }> }
-) {
+export async function POST(request: Request) {
   try {
-    return await authPost(request, context);
+    return await authPost(request);
   } catch (error) {
     logAuthError("POST", error);
     throw error;
