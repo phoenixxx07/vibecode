@@ -61,10 +61,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
       allowDangerousEmailAccountLinking: true,
-      // PKCE cookies are large encrypted JWTs that can be stripped or
-      // lost by reverse proxies (e.g. Traefik buffering-limit middleware).
-      // State-based CSRF protection is sufficient and uses a shorter cookie.
-      checks: ["state"],
     }),
   ],
 

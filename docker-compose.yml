@@ -78,11 +78,24 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=${TRAEFIK_NETWORK:-traefik-public}
+      # --- General router (all paths) ---
       - traefik.http.routers.vibecode-web.rule=Host(`${APP_DOMAIN:-vibecode.agungdigitalid.com}`)
       - traefik.http.routers.vibecode-web.entrypoints=websecure
       - traefik.http.routers.vibecode-web.tls.certresolver=letsencrypt
       - traefik.http.routers.vibecode-web.middlewares=security-headers@file,rate-limit@file,buffering-limit@file,gzip-compress@file
+      - traefik.http.routers.vibecode-web.priority=1
       - traefik.http.services.vibecode-web.loadbalancer.server.port=3000
+      # --- Auth router (/api/auth/**) — no buffering-limit, no rate-limit ---
+      # buffering-limit can retry requests on timeout; OAuth codes are single-use
+      # so a retry causes invalid_grant from Google. Auth routes also must not
+      # be rate-limited since the OAuth callback is a one-shot browser redirect.
+      - traefik.http.routers.vibecode-auth.rule=Host(`${APP_DOMAIN:-vibecode.agungdigitalid.com}`) && PathPrefix(`/api/auth`)
+      - traefik.http.routers.vibecode-auth.entrypoints=websecure
+      - traefik.http.routers.vibecode-auth.tls.certresolver=letsencrypt
+      - traefik.http.routers.vibecode-auth.middlewares=security-headers@file,gzip-compress@file
+      - traefik.http.routers.vibecode-auth.service=vibecode-web
+      - traefik.http.routers.vibecode-auth.priority=10
+      # --- HTTP → HTTPS redirect ---
       - traefik.http.routers.vibecode-web-http.rule=Host(`${APP_DOMAIN:-vibecode.agungdigitalid.com}`)
       - traefik.http.routers.vibecode-web-http.entrypoints=web
       - traefik.http.routers.vibecode-web-http.middlewares=redirect-to-https@docker
