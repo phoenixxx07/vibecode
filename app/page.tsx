@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { AppLogo } from "@/components/brand/AppLogo";
 import { ProductCard } from "@/components/catalog/ProductCard";
-import { AsciiLogo } from "@/components/terminal/AsciiLogo";
 import { TerminalHeader } from "@/components/terminal/TerminalHeader";
 import { TerminalButton } from "@/components/terminal/TerminalButton";
 import { ProjectRequestCard } from "@/components/requests/ProjectRequestCard";
@@ -32,7 +32,7 @@ export default async function HomePage() {
 
       <main className="mx-auto max-w-7xl px-4 py-12">
         <section className="border border-muted bg-surface p-8 md:p-12">
-          <AsciiLogo />
+          <AppLogo href={null} size={88} showText={false} className="mb-6" priority />
 
           <h1 className="blinking-cursor text-2xl font-bold uppercase text-text-main md:text-4xl">
             Katalog Vibe Coder Indonesia

@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
   ),
+  icons: {
+    icon: [{ url: "/images/vibecodelogo.svg", type: "image/svg+xml" }],
+    shortcut: ["/images/vibecodelogo.svg"],
+    apple: [{ url: "/images/vibecodelogo.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({

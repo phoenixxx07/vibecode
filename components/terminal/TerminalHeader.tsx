@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AppLogo } from "@/components/brand/AppLogo";
 import { auth } from "@/lib/auth";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { ThemeToggle } from "./ThemeToggle";
@@ -11,12 +12,7 @@ export async function TerminalHeader({ showSearch = true }: { showSearch?: boole
     <header className="border-b border-muted bg-surface">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="group">
-            <h1 className="text-xl font-bold uppercase tracking-wider text-primary">
-              &gt; VIBECATALOG.ID
-            </h1>
-            <p className="text-xs uppercase text-muted">katalog vibe coder indonesia</p>
-          </Link>
+          <AppLogo size={40} priority />
           <nav className="hidden items-center gap-4 text-sm uppercase md:flex">
             <Link href="/catalog" className="text-text-main hover:text-primary">
               [KATALOG]

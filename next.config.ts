@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     ],
     localPatterns: [
       { pathname: "/uploads/**" },
+      { pathname: "/images/**" },
       { pathname: "/placeholder-project.svg" },
     ],
     dangerouslyAllowSVG: true,
