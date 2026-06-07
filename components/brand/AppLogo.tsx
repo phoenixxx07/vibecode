@@ -1,6 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
+/** Wordmark di UI (header, hero, login) */
+export const APP_LOGO_SRC = "/images/logoutama.webp";
+
+/** Favicon tab browser */
+export const BROWSER_ICON_SRC = "/images/vibecodelogo.svg";
+
 type AppLogoProps = {
   href?: string | null;
   size?: number;
@@ -21,11 +27,12 @@ export function AppLogo({
   const content = (
     <>
       <Image
-        src="/images/vibecodelogo.svg"
+        src={APP_LOGO_SRC}
         alt="VibeCatalog"
-        width={size}
+        width={Math.round(size * 3.2)}
         height={size}
-        className="shrink-0 rounded-sm"
+        className="w-auto shrink-0 object-contain object-left"
+        style={{ height: size, width: "auto", maxWidth: showText ? "min(42vw, 200px)" : "min(88vw, 360px)" }}
         priority={priority}
       />
       {showText && (

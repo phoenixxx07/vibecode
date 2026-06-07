@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/images/vibecodelogo.svg", type: "image/svg+xml" }],
     shortcut: ["/images/vibecodelogo.svg"],
-    apple: [{ url: "/images/vibecodelogo.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/images/logoutama.webp", type: "image/webp" }],
   },
 };
 

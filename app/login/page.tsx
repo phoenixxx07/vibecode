@@ -42,7 +42,7 @@ export default async function LoginPage({
       </div>
       <div className="w-full max-w-md border border-muted bg-surface p-8">
         <div className="mb-8 flex flex-col items-center text-center">
-          <AppLogo href="/" size={56} showText={false} className="mb-4" />
+          <AppLogo href="/" size={48} showText={false} className="mb-4" />
           <h1 className="text-xl font-bold uppercase text-primary">&gt; AUTH_GATE</h1>
           <p className="mt-2 text-xs uppercase text-muted">developer access required</p>
         </div>

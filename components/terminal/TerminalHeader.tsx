@@ -12,7 +12,7 @@ export async function TerminalHeader({ showSearch = true }: { showSearch?: boole
     <header className="border-b border-muted bg-surface">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4">
         <div className="flex items-center gap-6">
-          <AppLogo size={40} priority />
+          <AppLogo size={36} showText={false} priority />
           <nav className="hidden items-center gap-4 text-sm uppercase md:flex">
             <Link href="/catalog" className="text-text-main hover:text-primary">
               [KATALOG]
