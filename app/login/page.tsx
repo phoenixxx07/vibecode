@@ -1,7 +1,6 @@
 import { auth, resolvePostLoginRedirect } from "@/lib/auth";
-import { buildAuthCallbackUrl } from "@/lib/auth-redirect";
+import { signInWithGoogle } from "@/lib/actions/sign-in-google";
 import { AppLogo } from "@/components/brand/AppLogo";
-import { GoogleSignInForm } from "@/components/auth/GoogleSignInForm";
 import { TerminalButton } from "@/components/terminal/TerminalButton";
 import { ThemeToggle } from "@/components/terminal/ThemeToggle";
 import { redirect } from "next/navigation";
@@ -19,8 +18,6 @@ export default async function LoginPage({
   if (session?.user?.id) {
     redirect(resolvePostLoginRedirect(session.user.role, params.callbackUrl));
   }
-
-  const authCallbackUrl = buildAuthCallbackUrl(params.callbackUrl);
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-page p-4">
@@ -46,14 +43,15 @@ export default async function LoginPage({
           </p>
         )}
 
-        <GoogleSignInForm callbackUrl={authCallbackUrl}>
+        <form action={signInWithGoogle}>
+          <input type="hidden" name="callbackUrl" value={params.callbackUrl ?? "/dashboard"} />
           <button
             type="submit"
             className="flex h-12 w-full items-center justify-center border border-primary bg-primary text-sm font-bold uppercase text-background-dark hover:bg-background-dark hover:text-primary"
           >
             [AUTH_GOOGLE]
           </button>
-        </GoogleSignInForm>
+        </form>
 
         <div className="mt-6 text-center">
           <TerminalButton href="/" variant="ghost" className="text-xs">
