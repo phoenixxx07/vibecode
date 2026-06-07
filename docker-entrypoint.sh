@@ -7,6 +7,22 @@ echo "Ensuring upload directory exists..."
 mkdir -p "$UPLOAD_DIR"
 chown -R nextjs:nodejs /app/public/uploads
 
+if [ -z "${POSTGRES_PASSWORD:-}" ]; then
+  echo "ERROR: POSTGRES_PASSWORD is required in .env" >&2
+  exit 1
+fi
+
+# Build DATABASE_URL with URL-encoded credentials (password may contain / @ ' etc.)
+export DATABASE_URL="$(node <<'NODE'
+const user = encodeURIComponent(process.env.POSTGRES_USER || "postgres");
+const pass = encodeURIComponent(process.env.POSTGRES_PASSWORD || "");
+const host = process.env.POSTGRES_HOST || "postgres";
+const port = process.env.POSTGRES_PORT || "5432";
+const db = process.env.POSTGRES_DB || "vibecatalog";
+process.stdout.write(`postgresql://${user}:${pass}@${host}:${port}/${db}?schema=public`);
+NODE
+)"
+
 echo "Running database migrations..."
 su-exec nextjs npx prisma migrate deploy
 
