@@ -1,0 +1,357 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum MetadataType {
+  platform
+  project_type
+  pricing_type
+}
+
+enum ProductStatus {
+  pending
+  approved
+  rejected
+}
+
+enum AiToolRequestStatus {
+  pending
+  approved
+  rejected
+}
+
+enum MetadataRequestKind {
+  category
+  ai_tool
+  platform
+  project_type
+  pricing_type
+}
+
+enum MetadataRequestStatus {
+  pending
+  approved
+  rejected
+}
+
+enum ProjectRequestStatus {
+  submission
+  published
+  rejected
+  in_progress
+  completed
+  cancelled
+}
+
+enum ProjectRequestApplicationStatus {
+  active
+  selected
+  withdrawn
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String?
+  email      String   @unique
+  avatarUrl  String?  @map("avatar_url")
+  socialLink String?  @map("social_link")
+  role       UserRole @default(user)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  products        Product[]
+  upvotes         Upvote[]
+  aiToolRequests     AiToolRequest[]
+  metadataRequests   MetadataRequest[]
+  projectRequests    ProjectRequest[]              @relation("ProjectRequester")
+  projectApplications ProjectRequestApplication[]
+  assignedProjectRequests ProjectRequest[]        @relation("AssignedDeveloper")
+  projectRequestMessages ProjectRequestMessage[]
+  cancellationRequests ProjectRequest[]          @relation("CancellationRequester")
+  cancellationApprovals ProjectRequest[]         @relation("CancellationApprover")
+  accounts        Account[]
+  sessions        Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Product {
+  id               String        @id @default(uuid())
+  userId           String        @map("user_id")
+  name             String
+  tagline          String        @db.VarChar(80)
+  url              String
+  githubUrl        String?       @map("github_url")
+  projectType      String        @map("project_type")
+  screenshotUrl    String?       @map("screenshot_url")
+  highlight1       String        @map("highlight_1")
+  highlight2       String        @map("highlight_2")
+  highlight3       String        @map("highlight_3")
+  platforms        String[]
+  techStack        String[]      @map("tech_stack")
+  pricingType      String?       @map("pricing_type")
+  priceAmount      Decimal?      @map("price_amount") @db.Decimal(12, 2)
+  priceCurrency    String?       @default("IDR") @map("price_currency")
+  pricingNote      String?       @map("pricing_note")
+  developerContact String        @map("developer_contact")
+  status           ProductStatus @default(pending)
+  isFeatured       Boolean       @default(false) @map("is_featured")
+  upvoteCount      Int           @default(0) @map("upvote_count")
+  viewCount        Int           @default(0) @map("view_count")
+  clickCount       Int           @default(0) @map("click_count")
+  rejectionReason  String?       @map("rejection_reason")
+  vibePrompt       String?       @map("vibe_prompt")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categories   ProductCategory[]
+  aiTools      ProductAiTool[]
+  upvotes      Upvote[]
+
+  @@index([status])
+  @@index([projectType])
+  @@index([createdAt])
+  @@map("products")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  icon      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  products        ProductCategory[]
+  projectRequests ProjectRequestCategory[]
+
+  @@map("categories")
+}
+
+model ProductCategory {
+  productId  String @map("product_id")
+  categoryId String @map("category_id")
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@map("product_categories")
+}
+
+model AiTool {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  logoUrl    String?  @map("logo_url")
+  website    String?
+  isApproved Boolean  @default(true) @map("is_approved")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  products ProductAiTool[]
+
+  @@map("ai_tools")
+}
+
+model ProductAiTool {
+  productId String @map("product_id")
+  aiToolId  String @map("ai_tool_id")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  aiTool  AiTool  @relation(fields: [aiToolId], references: [id], onDelete: Cascade)
+
+  @@id([productId, aiToolId])
+  @@map("product_ai_tools")
+}
+
+model Upvote {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("upvotes")
+}
+
+model AiToolRequest {
+  id        String              @id @default(uuid())
+  userId    String              @map("user_id")
+  name      String
+  website   String?
+  status    AiToolRequestStatus @default(pending)
+  createdAt DateTime            @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_tool_requests")
+}
+
+model MetadataOption {
+  id        String       @id @default(uuid())
+  type      MetadataType
+  value     String
+  label     String
+  icon      String?
+  sortOrder Int          @default(0) @map("sort_order")
+  isActive  Boolean      @default(true) @map("is_active")
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  @@unique([type, value])
+  @@map("metadata_options")
+}
+
+model MetadataRequest {
+  id        String                @id @default(uuid())
+  userId    String                @map("user_id")
+  kind      MetadataRequestKind
+  label     String
+  value     String?
+  website   String?
+  icon      String?
+  status    MetadataRequestStatus @default(pending)
+  createdAt DateTime              @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([kind])
+  @@map("metadata_requests")
+}
+
+model ProjectRequest {
+  id                        String               @id @default(uuid())
+  requesterId               String               @map("requester_id")
+  title                     String
+  description               String               @db.Text
+  workflowDescription       String               @map("workflow_description") @db.Text
+  specifications            String?              @db.Text
+  features                  String               @db.Text
+  deadline                  DateTime
+  budgetAmount              Decimal              @map("budget_amount") @db.Decimal(12, 2)
+  agreedBudgetAmount        Decimal?             @map("agreed_budget_amount") @db.Decimal(12, 2)
+  budgetCurrency            String               @default("IDR") @map("budget_currency")
+  budgetNote                String?              @map("budget_note")
+  projectType               String               @map("project_type")
+  status                    ProjectRequestStatus @default(submission)
+  assignedDeveloperId       String?              @map("assigned_developer_id")
+  startedAt                 DateTime?            @map("started_at")
+  completedAt               DateTime?            @map("completed_at")
+  cancelledAt               DateTime?            @map("cancelled_at")
+  cancellationRequestedById String?              @map("cancellation_requested_by_id")
+  cancellationRequestedAt   DateTime?            @map("cancellation_requested_at")
+  cancellationApprovedById  String?              @map("cancellation_approved_by_id")
+  sourceRequestId           String?              @map("source_request_id")
+  rejectionReason           String?              @map("rejection_reason")
+  createdAt                 DateTime             @default(now()) @map("created_at")
+  updatedAt                 DateTime             @updatedAt @map("updated_at")
+
+  requester               User                         @relation("ProjectRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  assignedDeveloper       User?                        @relation("AssignedDeveloper", fields: [assignedDeveloperId], references: [id], onDelete: SetNull)
+  cancellationRequestedBy User?                        @relation("CancellationRequester", fields: [cancellationRequestedById], references: [id], onDelete: SetNull)
+  cancellationApprovedBy  User?                        @relation("CancellationApprover", fields: [cancellationApprovedById], references: [id], onDelete: SetNull)
+  sourceRequest           ProjectRequest?              @relation("ProjectRequestDuplicate", fields: [sourceRequestId], references: [id], onDelete: SetNull)
+  duplicates              ProjectRequest[]             @relation("ProjectRequestDuplicate")
+  applications            ProjectRequestApplication[]
+  categories              ProjectRequestCategory[]
+
+  @@index([status])
+  @@index([requesterId])
+  @@index([projectType])
+  @@index([createdAt])
+  @@map("project_requests")
+}
+
+model ProjectRequestCategory {
+  projectRequestId String @map("project_request_id")
+  categoryId       String @map("category_id")
+
+  projectRequest ProjectRequest @relation(fields: [projectRequestId], references: [id], onDelete: Cascade)
+  category       Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([projectRequestId, categoryId])
+  @@map("project_request_categories")
+}
+
+model ProjectRequestApplication {
+  id               String                          @id @default(uuid())
+  projectRequestId String                          @map("project_request_id")
+  developerId      String                          @map("developer_id")
+  pitchMessage     String?                         @map("pitch_message") @db.Text
+  status           ProjectRequestApplicationStatus @default(active)
+  createdAt        DateTime                        @default(now()) @map("created_at")
+
+  projectRequest ProjectRequest          @relation(fields: [projectRequestId], references: [id], onDelete: Cascade)
+  developer      User                    @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  messages       ProjectRequestMessage[]
+
+  @@unique([projectRequestId, developerId])
+  @@index([projectRequestId])
+  @@map("project_request_applications")
+}
+
+model ProjectRequestMessage {
+  id            String   @id @default(uuid())
+  applicationId String   @map("application_id")
+  senderId      String   @map("sender_id")
+  body          String   @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  application ProjectRequestApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  sender      User                      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@map("project_request_messages")
+}

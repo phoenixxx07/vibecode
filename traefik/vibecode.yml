@@ -1,0 +1,37 @@
+# Optional file-provider config for shared Traefik on srv1029954.
+# Preferred: Docker labels in docker-compose.yml (auto-discovered via traefik-public).
+#
+# If you use this file instead, mount it into Traefik dynamic config and attach
+# the traefik container to network "vibecode":
+#   docker network connect vibecode traefik
+#
+# Service name must match docker-compose container_name: vibecode-app
+
+http:
+  routers:
+    vibecode-web:
+      entryPoints:
+        - websecure
+      rule: Host(`vibecode.agungdigitalid.com`)
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - security-headers@file
+        - rate-limit@file
+        - buffering-limit@file
+        - gzip-compress@file
+      service: vibecode-app
+
+    vibecode-web-http:
+      entryPoints:
+        - web
+      rule: Host(`vibecode.agungdigitalid.com`)
+      middlewares:
+        - redirect-to-https@docker
+      service: vibecode-app
+
+  services:
+    vibecode-app:
+      loadBalancer:
+        servers:
+          - url: http://vibecode-app:3000
