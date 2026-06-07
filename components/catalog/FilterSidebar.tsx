@@ -64,7 +64,7 @@ export function FilterSidebar({
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-4 terminal-scrollbar">
         <section>
           <h3 className="mb-2 text-xs uppercase text-muted">Tipe Proyek</h3>
-          <div className="flex flex-col gap-1">
+          <div className="flex max-h-40 flex-col gap-1 overflow-y-auto terminal-scrollbar">
             {projectTypes.map((type) => (
               <button
                 key={type.value}
@@ -86,7 +86,7 @@ export function FilterSidebar({
 
         <section>
           <h3 className="mb-2 text-xs uppercase text-muted">Kategori</h3>
-          <div className="flex flex-col gap-1">
+          <div className="flex max-h-40 flex-col gap-1 overflow-y-auto terminal-scrollbar">
             {categories.map((cat) => (
               <button
                 key={cat.id}
@@ -130,7 +130,7 @@ export function FilterSidebar({
 
         <section>
           <h3 className="mb-2 text-xs uppercase text-muted">Platform</h3>
-          <div className="flex flex-col gap-1">
+          <div className="flex max-h-40 flex-col gap-1 overflow-y-auto terminal-scrollbar">
             {platforms.map((p) => (
               <button
                 key={p.value}
