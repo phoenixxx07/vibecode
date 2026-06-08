@@ -38,6 +38,15 @@
     cursor: crosshair;
   }
 
+  a,
+  button,
+  [role="button"],
+  label,
+  select,
+  summary {
+    cursor: crosshair;
+  }
+
   body {
     background-color: var(--theme-page);
     color: var(--theme-text);
