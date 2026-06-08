@@ -34,10 +34,23 @@
     border-radius: 0;
   }
 
+  html {
+    cursor: crosshair;
+  }
+
   body {
     background-color: var(--theme-page);
     color: var(--theme-text);
     font-family: var(--font-mono);
+  }
+
+  input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  textarea {
+    cursor: text;
+  }
+
+  :disabled {
+    cursor: not-allowed;
   }
 
   input:focus,
