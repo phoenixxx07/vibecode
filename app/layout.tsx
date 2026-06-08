@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { CoordinateOverlay } from "@/components/terminal/CoordinateOverlay";
 import "./globals.css";
 
 const spaceMono = Space_Mono({
@@ -34,7 +35,10 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <body className={`${spaceMono.variable} min-h-screen antialiased`}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <CoordinateOverlay />
+          {children}
+        </ThemeProvider>
         <footer className="border-t border-muted bg-surface px-4 py-6 text-center text-xs text-muted">
           <p>
             {process.env.NEXT_PUBLIC_SITE_NAME ?? "VibeCatalog.id"} — Katalog vibe coder Indonesia.
